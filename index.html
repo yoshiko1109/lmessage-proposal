@@ -29,6 +29,8 @@
   .demobar button, .demobar a { background: #444; color: #fff; border: 0; border-radius: 4px; padding: 6px 10px; font-size: 12px; text-decoration: none; }
   .demobar button:hover, .demobar a:hover { background: #5a5a5a; }
   .demobar .spacer { flex: 1; }
+  .demobar .doc-link { background: var(--main); font-weight: 600; }
+  .demobar .doc-link:hover { background: var(--main); filter: brightness(1.12); }
 
   /* ---------- 全体レイアウト ---------- */
   .app { display: flex; min-height: calc(100vh - 44px); }
@@ -232,13 +234,14 @@
 <!-- デモ操作バー：審査する人が各画面をすぐ見られるようにするためのもの（製品の画面ではない） -->
 <div class="demobar">
   <span class="label">選考課題の提案用プロトタイプ<br>実際のL Messageではありません</span>
-  <button data-demo="s1">① 最初に開いた画面</button>
+  <button data-demo="s1">① テンプレート編集画面</button>
   <button data-demo="s2">② プレビューから設定へ移動</button>
   <button data-demo="s3">③ 保存せずに戻る</button>
   <button data-demo="s4">④ 未入力のまま保存</button>
   
   <a href="compare.html">⑤ 改善前との比較 →</a>
-  <a href="proposal.html">提案書 →</a>
+  <span class="spacer"></span>
+  <a class="doc-link" href="proposal.html">提案書を読む →</a>
 </div>
 
 <div class="app">
