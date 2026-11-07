@@ -183,6 +183,13 @@
   .tl .msg { color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tl .side { text-align: right; font-size: 12px; line-height: 16px; color: var(--sub); }
   .tl .unread { display: inline-block; margin-top: 4px; background: #06c755; color: #fff; border-radius: 10px; padding: 0 6px; }
+  .tl-group { border: 1px solid var(--g4); border-radius: 10px; overflow: hidden; background: var(--white); }
+  .tl-group .tl { border: 0; border-radius: 0; }
+  .tl-group .tl.other { padding: 6px 12px; opacity: .5; }
+  .tl-group .tl.other .av { width: 32px; height: 32px; font-size: 12px; }
+  .tl-group .tl.mine { box-shadow: inset 3px 0 0 var(--main); }
+  .av.o1 { background: #e3eefb !important; color: #4a78b0 !important; }
+  .av.o2 { background: #f3e6ee !important; color: #a0607e !important; }
   .is-default { color: var(--g3) !important; }
   .warn-chip { margin-top: 6px; background: var(--warn-weak); color: #7a5200; border-radius: 6px; font-size: 12px; line-height: 16px; padding: 6px 8px; display: none; }
   .warn-chip.show { display: block; }
@@ -374,10 +381,22 @@
               <div class="pv-label"><span class="n">2</span>トーク一覧</div>
               <div class="pv-block" tabindex="0" data-go="title">
                 <span class="pv-tip">押すと「メッセージタイトル」へ</span>
-                <div class="tl">
-                  <div class="av">M</div>
-                  <div class="mid"><div class="name">Hair Salon mirror</div><div class="msg" id="pv-list"></div></div>
-                  <div class="side">19:04<br><span class="unread">1</span></div>
+                <div class="tl-group">
+                  <div class="tl other">
+                    <div class="av o1">ま</div>
+                    <div class="mid"><div class="name">まちカフェ</div><div class="msg">＼週末限定／ケーキセット10%OFF☕</div></div>
+                    <div class="side">19:10</div>
+                  </div>
+                  <div class="tl mine">
+                    <div class="av">M</div>
+                    <div class="mid"><div class="name">Hair Salon mirror</div><div class="msg" id="pv-list"></div></div>
+                    <div class="side">19:04<br><span class="unread">1</span></div>
+                  </div>
+                  <div class="tl other">
+                    <div class="av o2">こ</div>
+                    <div class="mid"><div class="name">ことり書店</div><div class="msg">今月の新刊が入荷しました。ご予約受付中です</div></div>
+                    <div class="side">18:24</div>
+                  </div>
                 </div>
                 <div class="warn-chip" id="pv-warn">未入力のため、「メッセージをご確認ください」と表示されます。</div>
               </div>
