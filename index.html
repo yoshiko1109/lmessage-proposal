@@ -201,10 +201,6 @@
   .talk .av { width: 26px; height: 26px; border-radius: 50%; background: #efe6d6; color: #a08a60; font-size: 12px; display: grid; place-items: center; font-weight: 700; flex: none; }
   .carousel { display: flex; gap: 8px; overflow: hidden; }
   .bubble { width: 190px; flex: none; background: var(--white); border-radius: 12px; overflow: hidden; outline: 2px solid transparent; transition: outline-color .15s; }
-  .bubble { position: relative; cursor: pointer; }
-  .bubble:hover { outline-color: var(--main); }
-  .bubble-tip { position: absolute; top: 6px; right: 6px; background: var(--main); color: #fff; font-size: 12px; line-height: 16px; padding: 3px 8px; border-radius: 10px; opacity: 0; transition: opacity .15s; pointer-events: none; white-space: nowrap; }
-  .bubble:hover .bubble-tip { opacity: 1; }
   .bubble .img { height: 84px; }
   .bubble .bt { padding: 8px 10px 0; font-size: 13px; font-weight: 600; line-height: 18px; border-bottom: 1px solid var(--g1); margin: 0 10px; padding-left: 0; padding-right: 0; padding-bottom: 6px; }
   .bubble .bb { padding: 6px 10px; font-size: 12px; line-height: 16px; color: #444; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -405,7 +401,8 @@
               </div>
 
               <div class="pv-label"><span class="n">3</span>トーク画面</div>
-              <div class="pv-block" style="cursor:default" data-go="none">
+              <div class="pv-block" tabindex="0" data-go="panel">
+                <span class="pv-tip">押すと「パネル」編集へ</span>
                 <div class="talk">
                   <div class="bar">‹ Hair Salon mirror</div>
                   <div class="stream">
@@ -579,7 +576,7 @@ function renderPreview() {
   $('#empty-hint').classList.toggle('show', empty);
   const w = { L: 190, M: 160, S: 130 }[S.size];
   $('#pv-carousel').innerHTML = S.panels.map((p, i) => `
-    <div class="bubble" style="width:${w}px" data-panel-go="${i}"><span class="bubble-tip">押すと「パネル${i + 1}」編集へ</span>
+    <div class="bubble" style="width:${w}px">
       <div class="img ${p.ph}" style="height:${Math.round(w * 0.44)}px"></div>
       <div class="bt">${esc(p.title)}</div>
       <div class="bb">${esc(p.body)}</div>
@@ -645,8 +642,8 @@ document.addEventListener('click', (e) => {
   if (S.menu != null && !e.target.closest('.menu')) { S.menu = null; renderChips(); }
   const chip = e.target.closest('[data-panel]');
   if (chip) { selectPanel(+chip.dataset.panel); return; }
-  const go = e.target.closest('[data-panel-go]');
-  if (go) { goToPanel(+go.dataset.panelGo); return; }
+  const bp = e.target.closest('.pv-block[data-go="panel"]');
+  if (bp) { goToPanel(S.selected); return; }
   const blk = e.target.closest('.pv-block[data-go="title"]');
   if (blk) { goToTitle(); return; }
   const size = e.target.closest('[data-size]');
@@ -678,6 +675,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeModals();
   const blk = e.target.closest && e.target.closest('.pv-block[data-go="title"]');
   if (blk && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); goToTitle(); }
+  const bpk = e.target.closest && e.target.closest('.pv-block[data-go="panel"]');
+  if (bpk && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); goToPanel(S.selected); }
 });
 /* パネルのドラッグで並べ替え */
 let dragFrom = null;
