@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>テンプレート編集（改善案）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --main: #08bf5a; --main-weak: #f4fbf2; --main-strong: #23814d;
+    --text: #222222; --white: #ffffff; --border: #e0e0e0; --sub: #888888;
+    --g1: #dddddd; --g2: #f8f8f8; --g3: #b4b4b4; --g4: #f0f0f0;
+    --link: #5799DB; --link-weak: #edf4fb; --link-strong: #004b85;
+    --err: #f44336; --err-weak: #fdebe9; --err-strong: #a10000;
+    --warn: #fea600; --warn-weak: #fef5e4;
+    --talk-bg: #8cabd9;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: "Noto Sans JP", "Yu Gothic UI", sans-serif; color: var(--text); background: var(--g2); font-size: 14px; line-height: 22px; min-width: 1280px; }
+  button { font-family: inherit; cursor: pointer; }
+  input, textarea { font-family: inherit; font-size: 14px; color: var(--text); }
+
+  /* ---------- デモ操作バー（製品UIの外側） ---------- */
+  .demobar { position: sticky; top: 0; z-index: 50; height: 44px; background: #2b2b2b; color: #fff; display: flex; align-items: center; gap: 8px; padding: 0 16px; font-size: 12px; line-height: 16px; }
+  .demobar .label { color: #bbb; margin-right: 4px; }
+  .demobar button, .demobar a { background: #444; color: #fff; border: 0; border-radius: 4px; padding: 6px 10px; font-size: 12px; text-decoration: none; }
+  .demobar button:hover, .demobar a:hover { background: #5a5a5a; }
+  .demobar .spacer { flex: 1; }
+
+  /* ---------- 全体レイアウト ---------- */
+  .app { display: flex; min-height: calc(100vh - 44px); }
+  .sidebar { width: 220px; flex: none; background: var(--white); border-right: 1px solid var(--border); padding: 16px 0; }
+  .logo { display: flex; align-items: center; gap: 8px; padding: 0 20px 16px; font-size: 22px; font-weight: 700; color: var(--main); }
+  .logo .mark { width: 28px; height: 28px; border-radius: 8px; background: var(--main); color: #fff; display: grid; place-items: center; font-size: 15px; }
+  .nav-group { color: var(--sub); font-size: 12px; line-height: 16px; padding: 14px 20px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: var(--text); }
+  .nav-item .ico { width: 18px; height: 18px; border: 1.5px solid #555; border-radius: 4px; flex: none; }
+  .nav-item.active { background: var(--main-weak); color: var(--main-strong); font-weight: 600; box-shadow: inset 3px 0 0 var(--main); }
+  .nav-item.active .ico { border-color: var(--main-strong); }
+  .badge { background: var(--err); color: #fff; border-radius: 10px; font-size: 12px; line-height: 16px; padding: 0 6px; }
+
+  .main { flex: 1; min-width: 0; }
+  .topbar { height: 60px; background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+  .account { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; width: 360px; font-weight: 500; }
+  .account .av { width: 28px; height: 28px; border-radius: 50%; background: #efe6d6; color: #a08a60; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+  .account .caret { margin-left: auto; color: #555; }
+  .topbar .right { margin-left: auto; display: flex; gap: 24px; color: #555; font-size: 12px; line-height: 16px; }
+
+  .content { padding: 20px 24px 40px; }
+  .crumb { color: var(--sub); font-size: 12px; line-height: 16px; }
+  .crumb a { color: var(--link); text-decoration: none; }
+  .page-title { font-size: 20px; font-weight: 500; margin: 6px 0 16px; line-height: 28px; }
+  .typebox { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 14px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+  .typebox .k { font-weight: 500; }
+  .typebox .v { background: var(--g4); border-radius: 4px; padding: 6px 16px; font-size: 13px; }
+  .typebox .k + .v { margin-right: 24px; }
+
+  .layout { display: flex; gap: 24px; align-items: flex-start; }
+  .editor { flex: 1; min-width: 0; }
+  .preview { width: 360px; flex: none; position: sticky; top: 64px; }
+
+  /* ---------- タブ（押せる見た目） ---------- */
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab { flex: 1; height: 48px; border: 1px solid var(--border); background: var(--white); border-radius: 8px; font-size: 16px; font-weight: 500; color: #555; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); transition: background .15s, border-color .15s; }
+  .tab:hover { background: #fcfcfc; border-color: var(--g3); }
+  .tab .chev { color: var(--g3); font-size: 12px; }
+  .tab[aria-selected="true"] { background: var(--main-weak); border: 2px solid var(--main); color: var(--main-strong); font-weight: 600; box-shadow: none; }
+  .tab[aria-selected="true"] .chev { display: none; }
+  .tab .sub { font-size: 12px; font-weight: 400; color: var(--sub); }
+  .tab[aria-selected="true"] .sub { color: var(--main-strong); }
+
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card h3 { font-size: 16px; font-weight: 500; line-height: 24px; margin: 0 0 4px; }
+  .help { color: var(--sub); margin: 0 0 12px; }
+  .help b { color: var(--text); font-weight: 600; }
+
+  /* ---------- ボタン（マウスオーバーは全て「明るく」で統一） ---------- */
+  .btn { border: 0; border-radius: 6px; height: 40px; padding: 0 18px; font-size: 14px; font-weight: 500; transition: filter .15s, background .15s; }
+  .btn:hover { filter: brightness(1.12); }
+  .btn-main { background: var(--main); color: #fff; }
+  .btn-blue { background: var(--link); color: #fff; }
+  .btn-gray { background: var(--g4); color: var(--text); }
+  .btn-gray:hover { filter: brightness(1.03); }
+  .btn-ghost { background: var(--white); color: var(--text); border: 1px solid var(--border); }
+  .btn-danger-text { background: transparent; color: var(--err-strong); }
+  .btn-danger-text:hover { filter: none; background: var(--err-weak); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+
+  /* ---------- パネル設定 ---------- */
+  .panel-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .panel-row .note { color: var(--sub); font-size: 12px; line-height: 16px; }
+  .chips { display: flex; gap: 12px; margin-bottom: 16px; }
+  .chip { width: 180px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--white); text-align: left; padding: 0; }
+  .chip:hover { border-color: var(--g3); }
+  .chip .head { background: var(--g4); text-align: center; padding: 6px; font-weight: 500; }
+  .chip.sel { border: 2px solid var(--main); }
+  .chip.sel .head { background: var(--main); color: #fff; }
+  .chip .thumb { height: 72px; }
+  .chip .t { padding: 8px 10px; font-size: 12px; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 6px; }
+  .req { color: var(--err); font-size: 12px; }
+  .counter { margin-left: auto; color: var(--sub); font-weight: 400; font-size: 12px; }
+  .input, .textarea { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; background: var(--white); outline: none; }
+  .input:focus, .textarea:focus { border-color: var(--main); box-shadow: 0 0 0 3px rgba(8,191,90,.15); }
+  .textarea { resize: vertical; min-height: 80px; line-height: 22px; }
+  .img-field { display: flex; gap: 12px; align-items: center; }
+  .img-field .thumb { width: 160px; height: 96px; border-radius: 6px; }
+  .color-row { display: flex; gap: 16px; }
+  .color { display: flex; align-items: center; gap: 8px; }
+  .color .sw { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border); }
+  .action-box { border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; display: flex; justify-content: space-between; color: #555; }
+
+  /* 写真の代わりのプレースホルダー */
+  .ph1 { background: linear-gradient(135deg, #d9c6a5 0%, #b89f7a 55%, #8f7a5c 100%); }
+  .ph2 { background: linear-gradient(135deg, #e7e2da 0%, #c9c0b2 50%, #9d9385 100%); }
+  .ph3 { background: linear-gradient(135deg, #ecd9cf 0%, #cfae9e 50%, #a8877a 100%); }
+
+  /* ---------- 詳細設定 ---------- */
+  .insert-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .where { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .where span { background: var(--link-weak); color: var(--link-strong); border-radius: 12px; padding: 0 10px; font-size: 12px; line-height: 24px; }
+  .empty-hint { margin-top: 8px; background: var(--warn-weak); border-radius: 6px; padding: 8px 12px; font-size: 13px; line-height: 20px; color: #7a5200; display: none; }
+  .empty-hint.show { display: block; }
+  .sizes { display: flex; gap: 12px; }
+  .size { width: 120px; border: 1px solid var(--border); background: var(--white); border-radius: 8px; padding: 10px; text-align: center; color: #555; }
+  .size:hover { border-color: var(--g3); }
+  .size.sel { border: 2px solid var(--main); background: var(--main-weak); color: var(--main-strong); font-weight: 600; }
+  .size .box { margin: 8px auto 0; background: var(--g1); border-radius: 4px; }
+
+  /* プレビューから移動してきたときの強調 */
+  .flash { position: relative; animation: flash 2.4s ease-out; }
+  @keyframes flash { 0%,30% { box-shadow: 0 0 0 4px rgba(8,191,90,.45); border-color: var(--main); } 100% { box-shadow: 0 0 0 0 rgba(8,191,90,0); } }
+  .moved-tag { display: none; position: absolute; top: -12px; right: 16px; background: var(--main); color: #fff; font-size: 12px; line-height: 16px; padding: 4px 10px; border-radius: 12px; }
+  .flash .moved-tag { display: block; }
+
+  .bottom-actions { margin-top: 8px; }
+  .bottom-actions .note { color: var(--text); margin: 0 0 12px; }
+  .bottom-actions .btns { display: flex; flex-direction: column; gap: 10px; width: 160px; }
+  .bottom-actions .btn { width: 160px; }
+
+  /* ---------- 見え方プレビュー ---------- */
+  .pv { background: var(--white); border: 1px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; max-height: calc(100vh - 88px); }
+  .pv-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--g4); }
+  .pv-head .t { font-size: 16px; font-weight: 500; line-height: 24px; }
+  .pv-head .s { color: var(--sub); font-size: 12px; line-height: 16px; }
+  .pv-body { padding: 12px 16px; overflow: auto; flex: 1; }
+  .pv-label { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; color: var(--sub); margin: 4px 0 6px; }
+  .pv-label .n { width: 18px; height: 18px; border-radius: 50%; background: var(--g4); color: #555; display: grid; place-items: center; font-weight: 600; }
+  .pv-block { position: relative; border-radius: 10px; cursor: pointer; outline: 2px dashed transparent; outline-offset: 3px; transition: outline-color .15s; margin-bottom: 14px; }
+  .pv-block:hover, .pv-block:focus-visible { outline-color: var(--main); }
+  .pv-tip { position: absolute; right: 6px; top: -10px; background: var(--main); color: #fff; font-size: 12px; line-height: 16px; padding: 3px 8px; border-radius: 10px; opacity: 0; transform: translateY(4px); transition: .15s; pointer-events: none; white-space: nowrap; z-index: 2; }
+  .pv-block:hover .pv-tip, .pv-block:focus-visible .pv-tip { opacity: 1; transform: none; }
+
+  .notif { background: #eef0f2; border-radius: 14px; padding: 10px 12px; }
+  .notif .top { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 16px; color: #555; }
+  .notif .appic { width: 16px; height: 16px; border-radius: 4px; background: #06c755; color: #fff; font-size: 12px; display: grid; place-items: center; font-weight: 700; }
+  .notif .name { font-weight: 600; margin-top: 4px; }
+  .notif .msg { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .tl { background: var(--white); border: 1px solid var(--g4); border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: center; }
+  .tl .av { width: 40px; height: 40px; border-radius: 50%; background: #efe6d6; color: #a08a60; display: grid; place-items: center; font-weight: 700; flex: none; }
+  .tl .mid { flex: 1; min-width: 0; }
+  .tl .name { font-weight: 500; }
+  .tl .msg { color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tl .side { text-align: right; font-size: 12px; line-height: 16px; color: var(--sub); }
+  .tl .unread { display: inline-block; margin-top: 4px; background: #06c755; color: #fff; border-radius: 10px; padding: 0 6px; }
+  .is-default { color: var(--g3) !important; }
+  .warn-chip { margin-top: 6px; background: var(--warn-weak); color: #7a5200; border-radius: 6px; font-size: 12px; line-height: 16px; padding: 6px 8px; display: none; }
+  .warn-chip.show { display: block; }
+
+  .talk { background: var(--talk-bg); border-radius: 10px; overflow: hidden; }
+  .talk .bar { background: var(--white); padding: 6px 10px; font-weight: 600; font-size: 13px; }
+  .talk .stream { padding: 10px 0 12px 10px; }
+  .talk .row { display: flex; gap: 6px; align-items: flex-start; }
+  .talk .av { width: 26px; height: 26px; border-radius: 50%; background: #efe6d6; color: #a08a60; font-size: 12px; display: grid; place-items: center; font-weight: 700; flex: none; }
+  .carousel { display: flex; gap: 8px; overflow: hidden; }
+  .bubble { width: 190px; flex: none; background: var(--white); border-radius: 12px; overflow: hidden; outline: 2px solid transparent; transition: outline-color .15s; }
+  .bubble:hover { outline-color: var(--main); }
+  .bubble .img { height: 84px; }
+  .bubble .bt { padding: 8px 10px 0; font-size: 13px; font-weight: 600; line-height: 18px; border-bottom: 1px solid var(--g1); margin: 0 10px; padding-left: 0; padding-right: 0; padding-bottom: 6px; }
+  .bubble .bb { padding: 6px 10px; font-size: 12px; line-height: 16px; color: #444; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .bubble .bbtn { margin: 4px 10px 10px; border-radius: 4px; color: #fff; text-align: center; font-size: 12px; line-height: 16px; padding: 7px 4px; }
+  .talk .time { color: rgba(255,255,255,.9); font-size: 12px; line-height: 16px; text-align: right; padding-right: 10px; margin-top: 4px; }
+
+  .pv-foot { border-top: 1px solid var(--g4); padding: 12px 16px; }
+  .pv-foot .btn { width: 100%; height: 44px; font-size: 16px; }
+  .dirty-note { font-size: 12px; line-height: 16px; color: var(--sub); text-align: center; margin-top: 6px; min-height: 16px; }
+  .dirty-note.on { color: #7a5200; }
+
+  /* ---------- モーダル ---------- */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; z-index: 100; }
+  .overlay.open { display: flex; }
+  .modal { width: 480px; background: var(--white); border-radius: 12px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
+  .modal h2 { font-size: 20px; font-weight: 500; line-height: 28px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
+  .modal .ic { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 16px; font-weight: 700; flex: none; }
+  .modal .ic.warn { background: var(--warn); }
+  .modal .ic.err { background: var(--err); }
+  .modal p { margin: 0 0 12px; }
+  .modal .sample { background: var(--g2); border-radius: 10px; padding: 10px; margin-bottom: 12px; }
+  .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+  .toast { position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 20px); background: #222; color: #fff; padding: 10px 18px; border-radius: 8px; opacity: 0; transition: .2s; z-index: 120; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast .ok { color: var(--main); font-weight: 700; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<!-- デモ操作バー：審査する人が各画面をすぐ見られるようにするためのもの（製品の画面ではない） -->
+<div class="demobar">
+  <span class="label">選考課題の提案用プロトタイプ<br>実際のL Messageではありません</span>
+  <button data-demo="s1">① 最初に開いた画面</button>
+  <button data-demo="s2">② プレビューから設定へ移動</button>
+  <button data-demo="s3">③ 保存せずに戻る</button>
+  <button data-demo="s4">④ 未入力のまま保存</button>
+  <span class="spacer"></span>
+  <a href="compare.html">⑤ 改善前との比較 →</a>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="mark">L</span>L Message</div>
+    <div class="nav-group">お気に入り</div>
+    <div class="nav-group">メッセージ関連</div>
+    <div class="nav-item"><span class="ico"></span>1:1チャット <span class="badge">3</span></div>
+    <div class="nav-item active"><span class="ico"></span>テンプレート</div>
+    <div class="nav-item"><span class="ico"></span>メッセージ配信</div>
+    <div class="nav-item"><span class="ico"></span>ステップ配信</div>
+    <div class="nav-item"><span class="ico"></span>あいさつメッセージ</div>
+    <div class="nav-group">よく使われる機能</div>
+    <div class="nav-item"><span class="ico"></span>リッチメニュー</div>
+    <div class="nav-item"><span class="ico"></span>フォーム作成</div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="account"><span class="av">M</span>Hair Salon mirror<span class="caret">▾</span></div>
+      <div class="right"><span>配信数</span><span>サポート</span><span>お知らせ</span></div>
+    </header>
+
+    <div class="content">
+      <div class="crumb"><a href="#" onclick="return false">テンプレート</a> ＞ メッセージ登録</div>
+      <h1 class="page-title">テンプレート編集</h1>
+
+      <div class="typebox">
+        <span class="k">メッセージタイプ</span><span class="v">パネル・ボタン</span>
+        <span class="k">パネルタイプ</span><span class="v">カラーボタン</span>
+      </div>
+
+      <div class="layout">
+        <!-- ================= 編集エリア ================= -->
+        <div class="editor">
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab" id="tab-btn-panel" data-tab="panel" aria-selected="true">
+              パネル設定 <span class="sub">画像・本文・ボタン</span><span class="chev">›</span>
+            </button>
+            <button class="tab" role="tab" id="tab-btn-detail" data-tab="detail" aria-selected="false">
+              詳細設定 <span class="sub">一覧・通知の文言、サイズ</span><span class="chev">›</span>
+            </button>
+          </div>
+
+          <!-- パネル設定タブ -->
+          <section id="tab-panel" role="tabpanel">
+            <div class="panel-row">
+              <button class="btn btn-blue">＋ パネル追加</button>
+              <span class="note">※パネルは最大10枚まで登録できます。</span>
+            </div>
+            <div class="chips" id="chips"></div>
+
+            <div class="card" id="panel-form">
+              <span class="moved-tag">プレビューから移動しました</span>
+              <h3 id="panel-form-title">パネル1の内容</h3>
+              <p class="help">トーク画面に表示されるパネルの中身です。</p>
+
+              <div class="field">
+                <label>画像</label>
+                <div class="img-field"><div class="thumb" id="f-thumb"></div><button class="btn btn-ghost btn-sm">画像を変更</button></div>
+              </div>
+              <div class="field">
+                <label for="f-title">タイトル <span class="counter" id="c-title"></span></label>
+                <input class="input" id="f-title" maxlength="40">
+              </div>
+              <div class="field">
+                <label for="f-body">本文 <span class="counter" id="c-body"></span></label>
+                <textarea class="textarea" id="f-body" maxlength="60" rows="3"></textarea>
+              </div>
+              <div class="field">
+                <label for="f-btn">ボタンテキスト <span class="req">＊</span><span class="counter" id="c-btn"></span></label>
+                <input class="input" id="f-btn" maxlength="20">
+              </div>
+              <div class="field color-row">
+                <div class="color"><b>ボタン</b><span class="sw" id="sw-btn"></span><span id="v-btn"></span></div>
+                <div class="color"><b>テキスト</b><span class="sw" style="background:#fff"></span>#FFFFFF</div>
+              </div>
+              <div class="field">
+                <label>アクション</label>
+                <div class="action-box"><span id="action-text"></span><span>を送信</span></div>
+              </div>
+              <button class="btn btn-blue btn-sm">＋ ボタン追加</button>
+            </div>
+          </section>
+
+          <!-- 詳細設定タブ -->
+          <section id="tab-detail" role="tabpanel" hidden>
+            <div class="card" id="title-card">
+              <span class="moved-tag">プレビューから移動しました</span>
+              <h3>メッセージタイトル</h3>
+              <p class="help">友だちのLINEで、次の場所に表示される文言です。</p>
+              <div class="where"><span>トーク一覧</span><span>通知</span><span>新着バー</span></div>
+              <div class="insert-row">
+                <button class="btn btn-ghost btn-sm" data-insert="［LINE名］">＋ LINE名</button>
+                <button class="btn btn-ghost btn-sm" data-insert="［友だち情報］">＋ 友だち情報</button>
+                <span class="counter" id="c-mtitle" style="align-self:center"></span>
+              </div>
+              <textarea class="textarea" id="f-mtitle" maxlength="400" rows="3" placeholder="例：施術メニューはこちら♪"></textarea>
+              <div class="empty-hint" id="empty-hint">未入力の場合、トーク一覧・通知には「メッセージをご確認ください」と表示されます。</div>
+            </div>
+
+            <div class="card">
+              <h3>パネルサイズ</h3>
+              <p class="help">トーク画面でのパネルの大きさです。</p>
+              <div class="sizes" id="sizes">
+                <button class="size" data-size="L">大<div class="box" style="width:70px;height:56px"></div></button>
+                <button class="size" data-size="M">中<div class="box" style="width:58px;height:46px"></div></button>
+                <button class="size" data-size="S">小<div class="box" style="width:46px;height:36px"></div></button>
+              </div>
+            </div>
+          </section>
+
+          <div class="bottom-actions">
+            <p class="note">※選択肢はパネル1枚につき4つまで設定できます。</p>
+            <div class="btns">
+              <button class="btn btn-main" data-action="save">保存</button>
+              <button class="btn btn-gray" data-action="back">戻る</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 見え方プレビュー ================= -->
+        <aside class="preview">
+          <div class="pv">
+            <div class="pv-head">
+              <div class="t">友だちのLINEでの見え方</div>
+              <div class="s">見たい場所を押すと、その設定に移動します</div>
+            </div>
+            <div class="pv-body">
+              <div class="pv-label"><span class="n">1</span>通知</div>
+              <div class="pv-block" tabindex="0" data-go="title">
+                <span class="pv-tip">押すと「メッセージタイトル」へ</span>
+                <div class="notif">
+                  <div class="top"><span class="appic">L</span>LINE ・ 今</div>
+                  <div class="name">Hair Salon mirror</div>
+                  <div class="msg" id="pv-notif"></div>
+                </div>
+              </div>
+
+              <div class="pv-label"><span class="n">2</span>トーク一覧</div>
+              <div class="pv-block" tabindex="0" data-go="title">
+                <span class="pv-tip">押すと「メッセージタイトル」へ</span>
+                <div class="tl">
+                  <div class="av">M</div>
+                  <div class="mid"><div class="name">Hair Salon mirror</div><div class="msg" id="pv-list"></div></div>
+                  <div class="side">19:04<br><span class="unread">1</span></div>
+                </div>
+                <div class="warn-chip" id="pv-warn">未入力のため、どのお店でも同じ文言が表示されています</div>
+              </div>
+
+              <div class="pv-label"><span class="n">3</span>トーク画面</div>
+              <div class="pv-block" style="cursor:default" data-go="none">
+                <div class="talk">
+                  <div class="bar">‹ Hair Salon mirror</div>
+                  <div class="stream">
+                    <div class="row"><div class="av">M</div><div class="carousel" id="pv-carousel"></div></div>
+                    <div class="time">19:04</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pv-foot">
+              <button class="btn btn-main" data-action="save">保存する</button>
+              <div class="dirty-note" id="dirty-note">変更はありません</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 保存せずに戻るときの確認 -->
+<div class="overlay" id="m-leave" role="dialog" aria-modal="true" aria-labelledby="m-leave-t">
+  <div class="modal">
+    <h2 id="m-leave-t"><span class="ic err">!</span>変更が保存されていません</h2>
+    <p>保存せずに戻ると、編集した内容は失われます。</p>
+    <div class="actions">
+      <button class="btn btn-danger-text" data-action="discard">保存せずに戻る</button>
+      <button class="btn btn-ghost" data-action="close">キャンセル</button>
+      <button class="btn btn-main" data-action="save-back">保存して戻る</button>
+    </div>
+  </div>
+</div>
+
+<!-- ④ メッセージタイトルが未入力のまま保存するときの知らせ -->
+<div class="overlay" id="m-empty" role="dialog" aria-modal="true" aria-labelledby="m-empty-t">
+  <div class="modal">
+    <h2 id="m-empty-t"><span class="ic warn">!</span>メッセージタイトルが未入力です</h2>
+    <p>このまま保存すると、トーク一覧や通知には次のように表示されます。</p>
+    <div class="sample">
+      <div class="tl">
+        <div class="av">M</div>
+        <div class="mid"><div class="name">Hair Salon mirror</div><div class="msg is-default">メッセージをご確認ください</div></div>
+        <div class="side">19:04<br><span class="unread">1</span></div>
+      </div>
+    </div>
+    <p style="color:var(--sub)">ほかのアカウントの中で埋もれないよう、内容が伝わる文言の入力をおすすめします。</p>
+    <div class="actions">
+      <button class="btn btn-ghost" data-action="save-anyway">このまま保存する</button>
+      <button class="btn btn-main" data-action="go-title">メッセージタイトルを入力する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEFAULT_TEXT = 'メッセージをご確認ください';
+const INITIAL = () => ({
+  tab: 'panel', selected: 0, title: '', size: 'L', dirty: false, afterSave: null,
+  panels: [
+    { title: '透明感カラー＆似合わせカット', body: '肌色や雰囲気に合わせたカラーと、一人ひとりに似合うカットで、自然で垢抜けたスタイルへ。', btn: 'メニューの詳細を見る▶', color: '#c3ad86', ph: 'ph1' },
+    { title: 'うる艶髪質改善トリートメント', body: '髪の状態やお悩みに合わせてケアを提案し、指通りのよい、まとまりのある艶髪を目指します。', btn: 'メニューの詳細を見る▶', color: '#c3ad86', ph: 'ph2' },
+  ],
+});
+let S = INITIAL();
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- タブ ---------- */
+function setTab(tab) {
+  S.tab = tab;
+  $('#tab-panel').hidden = tab !== 'panel';
+  $('#tab-detail').hidden = tab !== 'detail';
+  $('#tab-btn-panel').setAttribute('aria-selected', tab === 'panel');
+  $('#tab-btn-detail').setAttribute('aria-selected', tab === 'detail');
+}
+
+/* ---------- パネル設定 ---------- */
+function renderChips() {
+  $('#chips').innerHTML = S.panels.map((p, i) => `
+    <button class="chip ${i === S.selected ? 'sel' : ''}" data-panel="${i}">
+      <div class="head">パネル${i + 1}</div>
+      <div class="thumb ${p.ph}"></div>
+      <div class="t">${esc(p.title) || '（タイトル未入力）'}</div>
+    </button>`).join('');
+}
+function fillPanelForm() {
+  const p = S.panels[S.selected];
+  $('#panel-form-title').textContent = `パネル${S.selected + 1}の内容`;
+  $('#f-thumb').className = 'thumb ' + p.ph;
+  $('#f-title').value = p.title;
+  $('#f-body').value = p.body;
+  $('#f-btn').value = p.btn;
+  $('#sw-btn').style.background = p.color;
+  $('#v-btn').textContent = p.color;
+  $('#action-text').textContent = `【${p.title}】 ${p.body.slice(0, 12)}…`;
+  updateCounters();
+}
+function updateCounters() {
+  $('#c-title').textContent = `${$('#f-title').value.length}/40`;
+  $('#c-body').textContent = `${$('#f-body').value.length}/60`;
+  $('#c-btn').textContent = `${$('#f-btn').value.length}/20`;
+  $('#c-mtitle').textContent = `${$('#f-mtitle').value.length}/400`;
+}
+
+/* ---------- 詳細設定 ---------- */
+function renderSizes() {
+  $$('#sizes .size').forEach((b) => b.classList.toggle('sel', b.dataset.size === S.size));
+}
+
+/* ---------- プレビュー ---------- */
+function renderPreview() {
+  const empty = S.title.trim() === '';
+  const text = empty ? DEFAULT_TEXT : S.title.replace(/\n/g, ' ');
+  for (const id of ['#pv-notif', '#pv-list']) {
+    $(id).textContent = text;
+    $(id).classList.toggle('is-default', empty);
+  }
+  $('#pv-warn').classList.toggle('show', empty);
+  $('#empty-hint').classList.toggle('show', empty);
+  const w = { L: 190, M: 160, S: 130 }[S.size];
+  $('#pv-carousel').innerHTML = S.panels.map((p, i) => `
+    <div class="bubble" style="width:${w}px" data-panel-go="${i}" title="押すと「パネル${i + 1}」へ">
+      <div class="img ${p.ph}" style="height:${Math.round(w * 0.44)}px"></div>
+      <div class="bt">${esc(p.title)}</div>
+      <div class="bb">${esc(p.body)}</div>
+      <div class="bbtn" style="background:${p.color}">${esc(p.btn)}</div>
+    </div>`).join('');
+  const n = $('#dirty-note');
+  n.textContent = S.dirty ? '保存されていない変更があります' : '変更はありません';
+  n.classList.toggle('on', S.dirty);
+}
+function markDirty() { S.dirty = true; renderPreview(); }
+
+/* ---------- プレビューから設定へ移動 ---------- */
+function flash(el) {
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 2600);
+}
+function goToTitle() {
+  setTab('detail');
+  const card = $('#title-card');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  flash(card);
+  setTimeout(() => $('#f-mtitle').focus({ preventScroll: true }), 350);
+}
+function goToPanel(i) {
+  setTab('panel');
+  S.selected = i; renderChips(); fillPanelForm();
+  const card = $('#panel-form');
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  flash(card);
+}
+
+/* ---------- 保存・戻る ---------- */
+function openModal(id) { $(id).classList.add('open'); }
+function closeModals() { $$('.overlay').forEach((o) => o.classList.remove('open')); }
+function toast(msg) {
+  const t = $('#toast'); t.innerHTML = `<span class="ok">✓</span>${msg}`;
+  t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function trySave(after) {
+  S.afterSave = after || null;
+  if (S.title.trim() === '') { closeModals(); openModal('#m-empty'); return; }
+  doSave();
+}
+function doSave() {
+  closeModals();
+  S.dirty = false; renderPreview();
+  if (S.afterSave === 'back') toast('保存しました。テンプレート一覧に戻ります（デモのため画面は移動しません）');
+  else toast('保存しました');
+  S.afterSave = null;
+}
+function back() {
+  if (S.dirty) openModal('#m-leave');
+  else toast('テンプレート一覧に戻ります（デモのため画面は移動しません）');
+}
+
+/* ---------- イベント ---------- */
+document.addEventListener('click', (e) => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab) { setTab(tab.dataset.tab); return; }
+  const chip = e.target.closest('[data-panel]');
+  if (chip) { S.selected = +chip.dataset.panel; renderChips(); fillPanelForm(); return; }
+  const go = e.target.closest('[data-panel-go]');
+  if (go) { goToPanel(+go.dataset.panelGo); return; }
+  const blk = e.target.closest('.pv-block[data-go="title"]');
+  if (blk) { goToTitle(); return; }
+  const size = e.target.closest('[data-size]');
+  if (size) { S.size = size.dataset.size; renderSizes(); markDirty(); return; }
+  const ins = e.target.closest('[data-insert]');
+  if (ins) {
+    const ta = $('#f-mtitle'); const p = ta.selectionStart ?? ta.value.length;
+    ta.value = ta.value.slice(0, p) + ins.dataset.insert + ta.value.slice(p);
+    S.title = ta.value; updateCounters(); markDirty(); ta.focus(); return;
+  }
+  const act = e.target.closest('[data-action]');
+  if (act) {
+    const a = act.dataset.action;
+    if (a === 'save') trySave();
+    if (a === 'back') back();
+    if (a === 'close') closeModals();
+    if (a === 'discard') { closeModals(); S = INITIAL(); boot(); toast('変更を破棄して戻りました（デモのため画面は移動しません）'); }
+    if (a === 'save-back') trySave('back');
+    if (a === 'save-anyway') doSave();
+    if (a === 'go-title') { closeModals(); goToTitle(); }
+    return;
+  }
+  const demo = e.target.closest('[data-demo]');
+  if (demo) runDemo(demo.dataset.demo);
+  if (e.target.classList.contains('overlay')) closeModals();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModals();
+  const blk = e.target.closest && e.target.closest('.pv-block[data-go="title"]');
+  if (blk && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); goToTitle(); }
+});
+function bindPanelInput(id, key) {
+  $(id).addEventListener('input', (e) => {
+    S.panels[S.selected][key] = e.target.value;
+    updateCounters(); renderChips(); markDirty();
+  });
+}
+bindPanelInput('#f-title', 'title');
+bindPanelInput('#f-body', 'body');
+bindPanelInput('#f-btn', 'btn');
+$('#f-mtitle').addEventListener('input', (e) => { S.title = e.target.value; updateCounters(); markDirty(); });
+
+/* ---------- デモ操作 ---------- */
+function runDemo(k) {
+  closeModals();
+  if (k === 's1') { S = INITIAL(); boot(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  if (k === 's2') { S = INITIAL(); boot(); setTimeout(goToTitle, 150); }
+  if (k === 's3') { if (!S.dirty) { S.title = S.title || '施術メニューはこちら♪'; $('#f-mtitle').value = S.title; updateCounters(); markDirty(); } back(); }
+  if (k === 's4') { S.title = ''; $('#f-mtitle').value = ''; updateCounters(); markDirty(); trySave(); }
+  history.replaceState(null, '', '#' + k);
+}
+
+function boot() {
+  setTab(S.tab);
+  $('#f-mtitle').value = S.title;
+  renderChips(); fillPanelForm(); renderSizes(); renderPreview();
+}
+boot();
+const h = location.hash.slice(1);
+if (['s2', 's3', 's4'].includes(h)) setTimeout(() => runDemo(h), 200);
+</script>
+</body>
+</html>
