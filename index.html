@@ -189,8 +189,6 @@
 
   .pv-foot { border-top: 1px solid var(--g4); padding: 12px 16px; }
   .pv-foot .btn { width: 100%; height: 44px; font-size: 16px; }
-  .dirty-note { font-size: 12px; line-height: 16px; color: var(--sub); text-align: center; margin-top: 6px; min-height: 16px; }
-  .dirty-note.on { color: #7a5200; }
 
   /* ---------- モーダル ---------- */
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; z-index: 100; }
@@ -383,7 +381,6 @@
             </div>
             <div class="pv-foot">
               <button class="btn btn-main" data-action="save">保存する</button>
-              <div class="dirty-note" id="dirty-note">変更はありません</div>
             </div>
           </div>
         </aside>
@@ -501,9 +498,6 @@ function renderPreview() {
       <div class="bb">${esc(p.body)}</div>
       <div class="bbtn" style="background:${p.color}">${esc(p.btn)}</div>
     </div>`).join('');
-  const n = $('#dirty-note');
-  n.textContent = S.dirty ? '保存されていない変更があります' : '変更はありません';
-  n.classList.toggle('on', S.dirty);
 }
 function markDirty() { S.dirty = true; renderPreview(); }
 
