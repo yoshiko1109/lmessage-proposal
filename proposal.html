@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>提案ドキュメント</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --main:#08bf5a; --main-weak:#f4fbf2; --main-strong:#23814d; --text:#222222; --border:#e0e0e0; --sub:#888888; --bg:#f8f8f8; --link:#5799DB; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: "Noto Sans JP", "Yu Gothic UI", sans-serif; font-size: 14px; line-height: 22px; }
+  .topbar { position: sticky; top: 0; z-index: 10; background: #2b2b2b; color: #fff; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 16px; font-size: 12px; line-height: 16px; }
+  .topbar a { background: #444; color: #fff; border-radius: 4px; padding: 6px 10px; text-decoration: none; }
+  .topbar a:hover { background: #5a5a5a; }
+  .topbar .note { margin-left: auto; color: #bbb; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 32px 16px 64px; }
+  .doc { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 40px 48px; }
+  h1 { font-size: 24px; font-weight: 500; line-height: 34px; margin: 0 0 16px; padding-bottom: 12px; border-bottom: 3px solid var(--main); }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+  nav.toc a { background: var(--main-weak); color: var(--main-strong); border-radius: 16px; padding: 4px 12px; text-decoration: none; font-size: 13px; }
+  nav.toc a:hover { filter: brightness(1.03); }
+  h2 { font-size: 20px; font-weight: 500; line-height: 28px; color: var(--main-strong); border-left: 5px solid var(--main); padding-left: 12px; margin: 48px 0 16px; scroll-margin-top: 56px; }
+  h3 { font-size: 16px; font-weight: 500; line-height: 24px; margin: 28px 0 8px; }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 12px; padding-left: 1.4em; }
+  li { margin: 2px 0; }
+  a { color: var(--link); }
+  strong { font-weight: 600; }
+  code { background: var(--bg); border-radius: 4px; padding: 0 4px; font-size: 13px; }
+  pre { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; overflow-x: auto; font-size: 13px; line-height: 18px; }
+  .table-wrap { overflow-x: auto; margin: 8px 0 16px; }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 13px; line-height: 20px; }
+  th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--main-weak); color: var(--main-strong); font-weight: 600; }
+  figure { margin: 12px 0 20px; }
+  figure img { display: block; max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+  figcaption { color: var(--sub); font-size: 12px; line-height: 16px; margin-top: 6px; }
+  .figrow { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; margin: 12px 0 20px; }
+  .figrow figure { flex: 1 1 280px; margin: 0; }
+  .figrow figure.phone { flex: 0 0 180px; }
+  figure.phone img { width: 180px; }
+  @media (max-width: 640px) { .doc { padding: 24px 16px; } h1 { font-size: 20px; line-height: 28px; } }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="index.html">プロトタイプ</a>
+  <a href="compare.html">改善前との比較</a>
+  <span class="note">選考課題の提案用ドキュメント（実際のL Messageではありません）</span>
+</div>
+<div class="wrap"><article class="doc">
+<h1>提案ドキュメント：テンプレート編集画面の「表示先プレビュー」</h1>
+<nav class="toc"><a href="#s1">① テーマ選定</a><a href="#s2">② 課題分析</a><a href="#s3">③ 提案内容</a><a href="#s4">④ AI活用プロセス</a></nav>
+<ul><li>動くプロトタイプ：<a href="https://yoshiko1109.github.io/lmessage-proposal/">https://yoshiko1109.github.io/lmessage-proposal/</a></li><li>改善前との比較：<a href="https://yoshiko1109.github.io/lmessage-proposal/compare.html">https://yoshiko1109.github.io/lmessage-proposal/compare.html</a></li></ul>
+<h2 id="s1">① テーマ選定</h2>
+<p><strong>選んだ機能領域：テンプレート（メッセージ登録）の編集画面</strong></p>
+<p>事前課題でメッセージタイトルを設定する際、トーク一覧に表示される文言が「メッセージタイトル」という名前で呼ばれていることを知らなかったため、「詳細設定」タブの中にあるその設定を探すために多くの時間を要しました。</p>
+<p>テンプレートは、リッチメニューの返信・一斉配信・ステップ配信など、L Messageの多くの機能で使用される共通の部品です。そのため、この画面の使いにくさは広範囲に影響します。以上の理由から、本画面をテーマとして選定しました。</p>
+<h2 id="s2">② 課題分析</h2>
+<h3>発生した問題</h3>
+<p>トーク一覧に表示される文言を変更したかったものの、設定箇所にたどり着くことができませんでした。その原因として、以下の3点が重なっていたと考えます。</p>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>つまずいた点</th><th>画面のどこが原因か</th></tr></thead><tbody><tr><td>1</td><td>開いた直後は見えない</td><td>最初に開くのは「パネル設定」タブ。メッセージタイトルは「詳細設定」タブの中にある</td></tr><tr><td>2</td><td>タブだと気づきにくい</td><td>選ばれていない「詳細設定」は灰色の文字だけで、押せるものに見えない</td></tr><tr><td>3</td><td>呼び名が分からない</td><td>「メッセージタイトル」という名前を知らないので、画面内もヘルプ・マニュアルも検索できなかった</td></tr></tbody></table></div>
+<div class="figrow"><figure class=""><a href="images/before-panel-tab.png" target="_blank" rel="noopener"><img src="images/before-panel-tab.png" alt="最初に開く「パネル設定」タブ。メッセージタイトルは見えない" loading="lazy"></a><figcaption>最初に開く「パネル設定」タブ。メッセージタイトルは見えない</figcaption></figure><figure class=""><a href="images/before-detail-tab.png" target="_blank" rel="noopener"><img src="images/before-detail-tab.png" alt="「詳細設定」タブの中にあるメッセージタイトル。見本画像の文言は固定" loading="lazy"></a><figcaption>「詳細設定」タブの中にあるメッセージタイトル。見本画像の文言は固定</figcaption></figure></div>
+<p>中でも3の影響が大きいと考えます。名称を知らない場合、画面内やヘルプでの検索はもちろん、他者に質問することも困難になります。</p>
+<p><strong>ユーザーは機能の名称ではなく「どこに、どのように表示されるか」を基準に考えています。一方で、画面は設定項目の名称を基準に整理されています。</strong> この認識のずれが、根本的な原因であると考えます。</p>
+<h3>保存操作に関する課題</h3>
+<p>設定を修正した後に押す保存ボタンは、画面の一番下にしか配置されていません。そのため、保存ボタンに気づかないまま前の画面に戻ってしまい、修正内容が失われるおそれがあります。</p>
+<p>また、保存ボタンは薄い緑の背景に緑の文字で表示されており、濃い青で塗られた「＋ボタン追加」などのボタンよりも目立ちません。最も重要な操作であるにもかかわらず視覚的な優先度が低く、押せない状態のようにも見えます。さらに、マウスオーバー時に保存ボタンは濃くなる一方、他のボタンは明るくなるなど、反応も統一されていません。</p>
+<figure class=""><a href="images/before-save-button.png" target="_blank" rel="noopener"><img src="images/before-save-button.png" alt="保存ボタンは画面の一番下だけ。薄い色で、すぐ下に「戻る」" loading="lazy"></a><figcaption>保存ボタンは画面の一番下だけ。薄い色で、すぐ下に「戻る」</figcaption></figure>
+<h3>パネル編集に関する課題</h3>
+<p>改善前は、パネルの内容を編集する際に「このパネルを編集」ボタンを押す必要があり、編集中のパネルには「編集中」と表示されていました。パネルを選ぶ操作と編集を始める操作が分かれているため、直感的に操作できないと考えます。また、パネルの並べ替えは「…」メニューの「左に移動」「右に移動」で1枚ずつ行う必要があり、手間がかかります。</p>
+<figure class=""><a href="images/before-panel-edit.png" target="_blank" rel="noopener"><img src="images/before-panel-edit.png" alt="各パネルの下に「編集中」「このパネルを編集」が並ぶ" loading="lazy"></a><figcaption>各パネルの下に「編集中」「このパネルを編集」が並ぶ</figcaption></figure>
+<h3>実機での検証結果（Android・リッチメニューの返信で検証）</h3>
+<div class="table-wrap"><table><thead><tr><th></th><th>メッセージタイトルが空</th><th>「施術メニューはこちら♪」と入力</th></tr></thead><tbody><tr><td>トーク画面</td><td>パネルのみ表示（新着バーでの表示は未確認）</td><td>通常はパネルのみ表示。過去のメッセージをさかのぼって見ている間に届いた場合のみ、画面下部の新着バーに「Hair Salon mirror:施術メニューはこちら♪」と表示</td></tr><tr><td>トーク一覧</td><td>「メッセージをご確認ください」</td><td>「施術メニューはこちら♪」</td></tr></tbody></table></div>
+<div class="figrow"><figure class="phone"><a href="images/before-talk-blank.png" target="_blank" rel="noopener"><img src="images/before-talk-blank.png" alt="トーク画面。タイトルは表示されない" loading="lazy"></a><figcaption>トーク画面。タイトルは表示されない</figcaption></figure><figure class="phone"><a href="images/before-newbar.jpg" target="_blank" rel="noopener"><img src="images/before-newbar.jpg" alt="さかのぼって見ている間に届くと、新着バーに表示" loading="lazy"></a><figcaption>さかのぼって見ている間に届くと、新着バーに表示</figcaption></figure></div>
+<div class="figrow"><figure class=""><a href="images/before-talklist-blank.png" target="_blank" rel="noopener"><img src="images/before-talklist-blank.png" alt="未入力時のトーク一覧：「メッセージをご確認ください」" loading="lazy"></a><figcaption>未入力時のトーク一覧：「メッセージをご確認ください」</figcaption></figure><figure class=""><a href="images/before-talklist-title.png" target="_blank" rel="noopener"><img src="images/before-talklist-title.png" alt="「施術メニューはこちら♪」と入力した場合" loading="lazy"></a><figcaption>「施術メニューはこちら♪」と入力した場合</figcaption></figure></div>
+<p>この結果から、以下の課題が明らかになりました。</p>
+<ul><li><strong>作った結果が、作った人の目に入りづらい。</strong> トーク画面にタイトルが出るのは、過去のメッセージをさかのぼって見ている間に届いたときの新着バーだけ。テスト送信しても設定し忘れに気づきにくい。</li><li><strong>空のままだと、どのお店でも同じ「メッセージをご確認ください」になる。</strong></li><li><strong>今ある見本画像が実際と違う。</strong> 詳細設定タブの見本は「エルメからのお知らせ」だが、実際は「メッセージをご確認ください」だった。今の見本では正しい見え方が分からない。</li><li><strong>トーク一覧はほかのアカウントと並ぶ場所。</strong> 同じ一覧の大手アカウントは「＼11月30日まで／スペシャルクーポン配布中♪」のように、開きたくなる文言を設定している。空のままだと、その中で埋もれる。</li></ul>
+<h3>今後の検証課題</h3>
+<ul><li>つまずいた事例は自分の1件のみ。他の人も同じかは未確認。</li><li>通知での見え方は未確認（リッチメニューの返信はトーク画面を開いたまま受け取るため、通知はほぼ出ない）。一斉配信などでは通知にも出るはず。</li><li>タイトルが空のとき、新着バーに何が表示されるかは未確認。</li><li>iPhoneでの見え方は未確認。</li></ul>
+<h2 id="s3">③ 提案内容</h2>
+<h3>新機能：表示先プレビュー</h3>
+<p>テンプレート編集画面の右側に、<strong>友だちのLINE上で実際にどのように表示されるか</strong>をプレビューとして表示します。プレビュー内の任意の箇所をクリックすると、該当する設定欄へ移動できます。</p>
+<h3>主な画面</h3>
+<figure class=""><a href="images/after-initial.png" target="_blank" rel="noopener"><img src="images/after-initial.png" alt="① 最初に開いた画面。右側にプレビュー（通知・トーク一覧・トーク画面）を常に表示し、その下に保存ボタンを配置" loading="lazy"></a><figcaption>① 最初に開いた画面。右側にプレビュー（通知・トーク一覧・トーク画面）を常に表示し、その下に保存ボタンを配置</figcaption></figure>
+<figure class=""><a href="images/after-detail.png" target="_blank" rel="noopener"><img src="images/after-detail.png" alt="② プレビューのトーク一覧を押すと、詳細設定タブのメッセージタイトル欄へ移動。入力した文言はプレビューにすぐ反映" loading="lazy"></a><figcaption>② プレビューのトーク一覧を押すと、詳細設定タブのメッセージタイトル欄へ移動。入力した文言はプレビューにすぐ反映</figcaption></figure>
+<div class="figrow"><figure class=""><a href="images/after-leave.png" target="_blank" rel="noopener"><img src="images/after-leave.png" alt="③ 保存せずに戻ろうとしたときの確認" loading="lazy"></a><figcaption>③ 保存せずに戻ろうとしたときの確認</figcaption></figure><figure class=""><a href="images/after-empty.png" target="_blank" rel="noopener"><img src="images/after-empty.png" alt="④ メッセージタイトルが未入力のまま保存しようとしたときの知らせ" loading="lazy"></a><figcaption>④ メッセージタイトルが未入力のまま保存しようとしたときの知らせ</figcaption></figure></div>
+<figure class=""><a href="images/after-panel-menu.png" target="_blank" rel="noopener"><img src="images/after-panel-menu.png" alt="パネルはドラッグで並べ替え。「…」メニューはコピーと削除のみ" loading="lazy"></a><figcaption>パネルはドラッグで並べ替え。「…」メニューはコピーと削除のみ</figcaption></figure>
+<h3>設計方針とその理由</h3>
+<div class="table-wrap"><table><thead><tr><th>決めたこと</th><th>理由</th></tr></thead><tbody><tr><td>今ある「パネル用プレビュー」の場所を、実際の見え方プレビューに置き換える</td><td>新しく場所を取らないので、横幅1280pxでも編集欄が狭くならない</td></tr><tr><td>「パネル設定」と「詳細設定」のタブは分けたままにする</td><td>1画面にまとめるとパネル編集が分かりにくくなるため。分かれていること自体は問題ではなく、タブに気づけないことが問題</td></tr><tr><td>選ばれていないタブも押せる見た目にする</td><td>原因2（タブだと気づかない）の解決</td></tr><tr><td>「編集中」表示と「このパネルを編集」ボタンをなくし、パネル1・パネル2を選ぶだけでその編集画面を開く</td><td>選ぶ操作と編集を始める操作を1回にまとめ、直感的に編集できるようにするため。選択中のパネルは緑の枠と見出しで示す</td></tr><tr><td>並べ替えはパネルのドラッグで行い、「…」メニューは「このパネルをコピー」「このパネルを削除」だけにする</td><td>「左に移動」「右に移動」を1回ずつ押すより、直接動かす方が直感的なため</td></tr><tr><td>パネルの削除時に確認を表示する</td><td>削除は元に戻せないため、誤操作を防ぐ</td></tr><tr><td>プレビューはどちらのタブでも同じものを出す</td><td>「詳細設定」に飛んだあとも、どこを直しているか見失わないため</td></tr><tr><td>通知 → トーク一覧 → トーク画面の順に縦に並べる</td><td>実際に相手が目にする形で確認できるようにするため</td></tr><tr><td>トーク一覧のプレビューは、架空のアカウントの行を上下に1行ずつ並べて表示する</td><td>一覧の中で自分のお店の文言がどう見えるか（埋もれていないか）を確認できるようにするため。プレビューが長くなりすぎないよう、前後1行ずつにとどめる</td></tr><tr><td>プレビューは内側だけをスクロールし、保存ボタンは常に下に表示する</td><td>3つを縦に並べてもプレビュー全体が長くなりすぎず、保存ボタンも見失わないようにするため</td></tr><tr><td>プレビューを押すと該当の設定欄へ移動する</td><td>原因3（呼び名が分からない）の解決。名前を知らなくても「見え方」から設定にたどり着ける。ラベル名を変えるだけの改善との違いはここ</td></tr><tr><td>プレビューの下にも保存ボタンを置く</td><td>保存ボタンが画面の一番下にしかなく、保存せずに戻ってしまうおそれがあるため。プレビューは常に右側に表示されるので、どこを編集していても保存ボタンが目に入る</td></tr><tr><td>画面下部の既存の保存ボタンも残す</td><td>これまでどおり下まで入力してから保存する人も迷わないようにするため</td></tr><tr><td>保存せずに画面を離れようとしたときに確認を表示する</td><td>修正内容が失われる操作ミスを防ぐため</td></tr><tr><td>メッセージタイトルが空のまま保存しようとしたときに知らせる</td><td>空のままだと、トーク一覧に「メッセージをご確認ください」という汎用の文言が表示され、ほかのアカウントの中で埋もれるため</td></tr><tr><td>保存ボタンを濃い緑（#08bf5a・白文字）で塗る</td><td>最も重要な操作であることがひと目で分かるようにするため。薄い色では押せない状態にも見える</td></tr><tr><td>マウスオーバー時は、ほかのボタンと同じく明るくする</td><td>ボタンごとに反応が異なると操作に迷うため。全ボタンで変化の向きを統一する</td></tr><tr><td>「戻る」ボタンは現状のまま</td><td>押し間違えた場合は、離脱時の確認で修正内容の消失を防げるため</td></tr></tbody></table></div>
+<h3>本機能による課題解決</h3>
+<div class="table-wrap"><table><thead><tr><th>誰の</th><th>どんな困りごとが</th><th>どう解消されるか</th></tr></thead><tbody><tr><td>テンプレートを作るお店の担当者</td><td>設定の名前が分からず、目的の設定にたどり着けない</td><td>見え方から押して、設定欄に直接移動できる</td></tr><tr><td>同上</td><td>保存ボタンに気づかず、修正内容を保存しないまま画面を離れてしまう</td><td>常に見えるプレビューの下から、すぐに保存できる</td></tr><tr><td>同上</td><td>設定し忘れても気づけない</td><td>トーク画面では確認できない一覧・通知の見え方も、作りながら確認できる</td></tr></tbody></table></div>
+<h3>デザインガイドとの関係</h3>
+<p>フォントサイズ・ウェイトと、管理画面部分の配色は、L Messageのデザインガイドに準拠しました。プレビュー内では、友だちのLINEでの見え方を再現するため、LINEのアイコン色（#06c755）とトーク画面の背景色（#8cabd9）を使用しています。また、パネルのボタン色（#c3ad86）は、お店側で設定した値をそのまま表示しています。</p>
+<div class="table-wrap"><table><thead><tr><th>お店（成果）</th><th>一覧で「メッセージをご確認ください」のまま埋もれ、開いてもらえない</th><th>一覧での見え方を見ながら、開きたくなる文言を考えられる</th></tr></thead><tbody></tbody></table></div>
+<h3>今後の展望</h3>
+<ul><li>使われ方（リッチメニューの返信／一斉配信など）に合わせて、プレビューの中身を切り替える。リッチメニューの返信では通知がほぼ表示されないため、通知を省くなど</li><li>「見え方から設定へ移動する」仕組みを、詳細設定のほかの項目や、一斉配信・ステップ配信などほかのメッセージ作成画面にも広げる</li></ul>
+<h2 id="s4">④ AI活用プロセス</h2>
+<h3>使用ツール</h3>
+<ul><li>Claude Code：仮説の点検、質問と選択肢の提示、提案書の下書き、プロトタイプの制作</li><li>GitHub Pages：プロトタイプの公開</li></ul>
+<h3>AIとの役割分担</h3>
+<p>AIには、仮説の弱いところの指摘、判断に必要な選択肢の提示、提案書とプロトタイプの作成を任せました。一方で、課題の発見、実機での検証、案の採否と最終的な判断は自分で行いました。</p>
+<p>AIが一方的に作り進めることを避けるため、質問は順序立てた選択式で出させ、毎回「自由に書く」を選べるようにしました。選択肢にない考えは自分の言葉で伝え、AIの推奨案をそのまま採用しないことも多くありました。</p>
+<h3>企画・検証の段階</h3>
+<div class="table-wrap"><table><thead><tr><th>段階</th><th>AIに頼んだこと</th><th>AIの出力</th><th>自分の判断</th></tr></thead><tbody><tr><td>仮説の点検</td><td>「まだ作らず、仮説の弱いところを質問で指摘して」と依頼</td><td>今の画面にも見本画像があるので、プレビューがないことが原因ではないのでは、と指摘</td><td>自分のスクリーンショットを見せ、最初に開くタブからは見えないこと、呼び名を知らなかったことを補足。原因を3つに整理できた</td></tr><tr><td>置き場所の検討</td><td>置き場所の案を出してもらう</td><td>「タブをやめて1画面にまとめ、右側にプレビューを固定」を推奨</td><td><strong>採用しなかった。</strong> タブは理由があって分かれていると判断。今あるパネル用プレビューの場所を、実際の見え方プレビューに置き換える案を自分で出した</td></tr><tr><td>事実確認</td><td>確認の手順を出してもらう</td><td>通知を含む4パターンの確認手順</td><td>対象がリッチメニューの返信であることを伝え、手順が合っているか問い直した。通知はほぼ出ないと分かったため、手順を2回分に絞って実機で確認</td></tr><tr><td>確認結果の読み取り</td><td>スクリーンショットを読んでもらう</td><td>空のときの文言、見本画像との違い、一覧での他社との比較を整理</td><td>空のときの「メッセージをご確認ください」が埋もれることを根拠に、未入力のまま保存するときの知らせを提案に加えた</td></tr><tr><td>AIの誤りの訂正</td><td>検証結果をもとに下書きを作ってもらう</td><td>「メッセージタイトルはトーク画面にはどこにも出ない」と記述</td><td><strong>誤りに自分で気づいた。</strong> 過去のメッセージをさかのぼって見ている間に届くと、画面下部の新着バーにタイトルが表示されることを実機で確認し、訂正させた</td></tr><tr><td>保存ボタンの課題</td><td>自分で気づいた課題（保存ボタンが一番下にしかない）を伝え、提案書に加えてもらう</td><td>既存の保存ボタンを残すか、保存せずに離れるときに確認を出すかを質問</td><td>両方を採用。さらに、保存ボタンの色が薄いこと、マウスオーバー時の反応がほかのボタンと逆であることを自分で指摘した</td></tr><tr><td>保存ボタンの色</td><td>マウスオーバーで明るくする案を伝える</td><td>「薄い色のまま明るくすると、さらに見えにくくなる」と指摘し、普段の色を濃い緑にする案を提示</td><td>指摘を受け入れ、普段は濃い緑、マウスオーバーで明るくする形に決めた</td></tr><tr><td>文章の調整</td><td>下書きの文体を指定</td><td>常体で書かれた下書き</td><td>説明文はです・ます調、表と箇条書きは常体に分けるよう指示。言い回しも「多くの時間を要しました」のように具体的に直し、全体の硬さをそろえさせた</td></tr></tbody></table></div>
+<h3>プロトタイプ制作の段階</h3>
+<div class="table-wrap"><table><thead><tr><th>段階</th><th>AIの出力</th><th>自分の判断</th></tr></thead><tbody><tr><td>画面構成</td><td>必須3画面と追加候補2画面を提案</td><td>5画面すべてを作ると決めた</td></tr><tr><td>プレビューの見出し</td><td>「友だちのLINEでの見え方」</td><td>「プレビュー」に変更</td></tr><tr><td>保存ボタン下の一文</td><td>AIが独自に「変更はありません」という表示を追加</td><td>意味が分かりにくかったため、説明を求めたうえで削除</td></tr><tr><td>未入力時の注意書き</td><td>「どのお店でも同じ文言が表示されています」</td><td>「「メッセージをご確認ください」と表示されます」と、実際の文言が分かる表現に変更</td></tr><tr><td>パネルの選択</td><td>パネルのカードを押すと編集画面が開く形で制作</td><td>改善前の「編集中」「このパネルを編集」をなくしたことを、提案書と比較ページに書くよう指示</td></tr><tr><td>「…」メニュー</td><td>AIが「…」メニューを省いていたことに気づき、中身を質問</td><td>「左に移動」「右に移動」はドラッグでの並べ替えに置き換えるよう指示。コピーと削除は残した</td></tr><tr><td>ほかのアカウントの行</td><td>トーク一覧のプレビューに、架空のお店の行を並べる案を提示</td><td>プレビューが長くなりすぎることを懸念し、上下1行ずつにとどめた</td></tr><tr><td>トーク画面のプレビュー</td><td>パネルごとに押すと、そのパネルの編集へ移る形で制作</td><td>パネルが多いと横にスクロールできないため、まとめて「パネル」編集へ移る形に変更。移動先でパネルを切り替えられるので十分と判断</td></tr><tr><td>案内文</td><td>「押すと「メッセージタイトル」へ」</td><td>「〜編集へ」に変え、編集画面に移ることが分かるようにした</td></tr><tr><td>公開時の配慮</td><td>個人のLINEのトーク一覧が写った画像の扱いを質問</td><td>自分のお店の行だけに切り抜いて公開することにした</td></tr><tr><td>表示幅</td><td>横幅1280pxで制作</td><td>小さいウィンドウで「⑤ 改善前との比較」が見切れることに気づき、対応を依頼。ウィンドウ幅に合わせて縮小表示する形にした</td></tr></tbody></table></div>
+</article></div>
+</body>
+</html>
