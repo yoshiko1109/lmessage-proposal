@@ -230,7 +230,7 @@
   <button data-demo="s2">② プレビューから設定へ移動</button>
   <button data-demo="s3">③ 保存せずに戻る</button>
   <button data-demo="s4">④ 未入力のまま保存</button>
-  <span class="spacer"></span>
+  
   <a href="compare.html">⑤ 改善前との比較 →</a>
 </div>
 
@@ -719,5 +719,6 @@ boot();
 const h = location.hash.slice(1);
 if (['s2', 's3', 's4'].includes(h)) setTimeout(() => runDemo(h), 200);
 </script>
+<script>(function(){function fit(){var w=document.documentElement.clientWidth||window.innerWidth;var z=Math.min(1,w/1280);document.documentElement.style.zoom=z<1?String(z):"";}fit();window.addEventListener("resize",fit);})();</script>
 </body>
 </html>
